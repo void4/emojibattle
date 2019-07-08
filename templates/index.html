@@ -1,0 +1,74 @@
+<title>EmojiBattle</title>
+
+<style>
+#left {
+    background-color: blue;
+}
+
+#right {
+    background-color: red;
+}
+
+#pond {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    height: 50%;
+}
+
+.cell {
+    width: 40%;
+    height: 40%;
+    text-align: center;
+    margin: 2%;
+    font-size: 400%;
+}
+
+</style>
+
+<div id="pond">
+    <div class="cell" id="left"></div>
+    <div class="cell" id="right"></div>
+    <div class="cell" id="leftscore"></div>
+    <div class="cell" id="rightscore"></div>
+</div>
+
+<div id="log">
+
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+
+<script>
+
+$(document).ready(function(){
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+    socket.on('newnumber', function(msg) {
+        //$('#log').append('<p>Received: ' + msg + '</p>');
+        $("#left").text(msg.a)
+        $("#right").text(msg.b)
+    });
+
+    socket.on("newratings", function(msg) {
+        //$('#log').append('<p>Received: ' + JSON.stringify(msg) + '</p>');
+        $("#leftscore").text(msg[0])
+        $("#rightscore").text(msg[1])
+    })
+
+    socket.on("diffs", function(msg) {
+        //$('#log').append('<p>Received: ' + JSON.stringify(msg) + '</p>');
+        $("#leftscore").text(msg[0])
+        $("#rightscore").text(msg[1])
+    })
+
+    $('#left').click(function(event) {
+        socket.emit('click', {data: 0});
+        return false;
+    });
+    $('#right').click(function(event) {
+        socket.emit('click', {data: 1});
+        return false;
+    });
+});
+</script>
