@@ -81,22 +81,24 @@ else:
 	ratings = defaultdict(Rating)
 battle = {"a":None,"b":None}
 
+def getranks():
+	sortedratings = sorted(list(ratings.values()), key=lambda x:x.mu, reverse=True)
+
+	ra = sortedratings.index(ratings[battle["a"]]) + 1
+	rb = sortedratings.index(ratings[battle["b"]]) + 1
+
+	return ra, rb
+
 @socketio.on("click", namespace="/test")
 def test_click(msg):
 
 	cura = battle["a"]
 	curb = battle["b"]
 
-
-
 	olda = ratings[cura]
 	oldb = ratings[curb]
 
-	sortedratings = sorted(list(ratings.values()), key=lambda x:x.mu)
-
-	oldranka = sortedratings.index(olda)
-	oldrankb = sortedratings.index(oldb)
-
+	oldranka, oldrankb = getranks()
 
 	oldamu = olda.mu
 	oldbmu = oldb.mu
@@ -109,34 +111,36 @@ def test_click(msg):
 	diffa = ratings[cura].mu-oldamu
 	diffb = ratings[curb].mu-oldbmu
 
-	sortedratings = sorted(list(ratings.values()), key=lambda x:x.mu)
+	newranka, newrankb = getranks()
 
-	newranka = sortedratings.index(ratings[cura])
-	newrankb = sortedratings.index(ratings[curb])
-
-	diffranka = newranka-oldranka
-	diffrankb = newrankb-oldrankb
+	diffranka = oldranka-newranka
+	diffrankb = oldrankb-newrankb
 
 	sendratings()
 
-	senddiffs(diffa, diffranka, diffb, diffrankb)
+	senddiffs(diffa, diffranka, diffb, diffrankb, newranka, newrankb)
 
-def addplus(v):
-	v = str(v)
+def f2s(v):
+	return "%i" % round(v*40)
+
+def addplus(v, trim=True):
+	if trim:
+		v = f2s(v)
+	else:
+		v = str(v)
 	v = "+" + v if not v.startswith("-") else v
 	return v
 
-def senddiffs(da,dra,db,drb):
+def senddiffs(da,dra,db,drb,nra,nrb):
 	da = addplus(da)
 	db = addplus(db)
-	dra = addplus(dra)
-	drb = addplus(drb)
+	dra = addplus(dra, False)
+	drb = addplus(drb, False)
 
-
-	socketio.emit('diffs', [da, db, dra, drb], namespace='/test', broadcast=True)
+	socketio.emit('diffs', [da, db, dra, drb, nra, nrb], namespace='/test', broadcast=True)
 
 def sendratings():
-	socketio.emit('newratings', [ratings[battle["a"]].mu, ratings[battle["b"]].mu], namespace='/test', broadcast=True)
+	socketio.emit('newratings', [f2s(ratings[battle["a"]].mu), f2s(ratings[battle["b"]].mu)], namespace='/test', broadcast=True)
 
 
 @socketio.on('connect', namespace='/test')

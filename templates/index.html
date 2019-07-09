@@ -42,6 +42,10 @@
     <div class="cell" id="right"></div>
     <div class="cell" id="leftscore"></div>
     <div class="cell" id="rightscore"></div>
+    <div class="cell" id="leftrank"></div>
+    <div class="cell" id="rightrank"></div>
+    <div class="cell" id="leftinfo"></div>
+    <div class="cell" id="rightinfo"></div>
 </div>
 
 <div id="log">
@@ -68,14 +72,14 @@ $(document).ready(function(){
 
     socket.on("diffs", function(msg) {
         //$('#log').append('<p>Received: ' + JSON.stringify(msg) + '</p>');
-        $("#leftscore").text(msg[0])
-        $("#rightscore").text(msg[1])
+        $("#leftrank").text("#" + msg[4])
+        $("#rightrank").text("#" + msg[5])
 
-        //sleep
-        $("#leftscore").text(msg[2])
-        $("#rightscore").text(msg[3])
+        $("#leftinfo").text(msg[2] + " " + msg[0])
+        $("#rightinfo").text(msg[3] + " " + msg[1])
     })
 
+    // TODO also on mobile tap
     $('#left').click(function(event) {
 
         // Add highlightAns class
