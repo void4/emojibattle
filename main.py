@@ -66,24 +66,45 @@ battle = {"a":None,"b":None}
 def test_click(msg):
 	print(msg)
 
-	olda = ratings[battle["a"]]
-	oldb = ratings[battle["b"]]
+	cura = battle["a"]
+	curb = battle["b"]
+
+
+
+	olda = ratings[cura]
+	oldb = ratings[curb]
+
+	sortedratings = sorted(list(ratings.values()), key=lambda x:x.mu)
+
+	oldranka = sortedratings.index(olda)
+	oldrankb = sortedratings.index(oldb)
+
 
 	oldamu = olda.mu
 	oldbmu = oldb.mu
 
 	if msg["data"] == 0:
-		ratings[battle["a"]], ratings[battle["b"]] = rate_1vs1(olda, oldb)
+		ratings[cura], ratings[curb] = rate_1vs1(olda, oldb)
 	elif msg["data"] == 1:
-		ratings[battle["b"]], ratings[battle["a"]] = rate_1vs1(oldb, olda)
+		ratings[curb], ratings[cura] = rate_1vs1(oldb, olda)
 
 	print(oldamu, olda.mu, type(oldamu))
-	diffa = ratings[battle["a"]].mu-oldamu
-	diffb = ratings[battle["b"]].mu-oldbmu
+	diffa = ratings[cura].mu-oldamu
+	diffb = ratings[curb].mu-oldbmu
+
+	sortedratings = sorted(list(ratings.values()), key=lambda x:x.mu)
+
+	newranka = sortedratings.index(ratings[cura])
+	newrankb = sortedratings.index(ratings[curb])
+
+	diffranka = newranka-oldranka
+	diffrankb = newrankb-oldrankb
+
+	print(diffranka, diffrankb)
 
 	sendratings()
 
-	senddiffs(diffa, diffb)
+	senddiffs(diffa, diffranka, diffb, diffrankb)
 
 def addplus(v):
 	print(v)
@@ -91,11 +112,14 @@ def addplus(v):
 	v = "+" + v if not v.startswith("-") else v
 	return v
 
-def senddiffs(da,db):
+def senddiffs(da,dra,db,drb):
 	da = addplus(da)
 	db = addplus(db)
+	dra = addplus(dra)
+	drb = addplus(drb)
 
-	socketio.emit('diffs', [da, db], namespace='/test', broadcast=True)
+
+	socketio.emit('diffs', [da, db, dra, drb], namespace='/test', broadcast=True)
 
 def sendratings():
 	socketio.emit('newratings', [ratings[battle["a"]].mu, ratings[battle["b"]].mu], namespace='/test', broadcast=True)
