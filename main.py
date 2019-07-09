@@ -1,19 +1,28 @@
 # Start with a basic flask app webpage.
-from flask_socketio import SocketIO, emit
-from flask import Flask, render_template, url_for, copy_current_request_context
+import os
 from random import random, choice
 from string import ascii_uppercase
 from time import sleep
 from threading import Thread, Event
+from collections import defaultdict
+from pickle import loads, dumps
+
+from trueskill import Rating, rate_1vs1, quality_1vs1
+
+from flask_socketio import SocketIO, emit
+from flask import Flask, render_template, url_for, copy_current_request_context
+
+#from tinydb import TinyDB, Query
+#db = TinyDB("db.json")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 app.config['DEBUG'] = True
 
-#turn the flask app into a socketio app
+# Turn the flask app into a socketio app
 socketio = SocketIO(app, async_mode="threading")
 
-#random number Generator Thread
+# Async socketio update thread
 thread = Thread()
 thread_stop_event = Event()
 
@@ -23,17 +32,18 @@ thread_stop_event = Event()
 #https://stackoverflow.com/questions/31912136/each-is-not-a-function
 emojis = open("emojis.txt", encoding="utf8", errors="ignore").read()
 def choose():
+	return choice("ABC")
 	#return choice(ascii_uppercase)
-	return choice(emojis)
+	#return choice(emojis)
 
 class RandomThread(Thread):
 	def __init__(self):
 		self.delay = 10
 		super(RandomThread, self).__init__()
 
-	def randomNumberGenerator(self):
+	def pingClients(self):
 		global battle
-		print("Making random numbers")
+		print("Starting the async ping thread.")
 		while not thread_stop_event.isSet():
 			a = choose()
 			b = a
@@ -43,10 +53,11 @@ class RandomThread(Thread):
 			battle = {'a': a, 'b':b}
 			sendbattle()
 			sendratings()
+			savedb()
 			sleep(self.delay)
 
 	def run(self):
-		self.randomNumberGenerator()
+		self.pingClients()
 
 def sendbattle():
 	socketio.emit('newnumber', battle, namespace='/test')
@@ -56,15 +67,22 @@ def index():
 	#only by sending this page first will the client be connected to the socketio instance
 	return render_template('index.html')
 
-from trueskill import Rating, rate_1vs1, quality_1vs1
-from collections import defaultdict
 
-ratings = defaultdict(Rating)
+DBFILE = "db.json"
+def savedb():
+	global ratings
+	with open(DBFILE, "wb+") as db:
+		db.write(dumps(ratings))
+
+if os.path.exists(DBFILE):
+	with open(DBFILE, "rb") as db:
+		ratings = loads(db.read())
+else:
+	ratings = defaultdict(Rating)
 battle = {"a":None,"b":None}
 
 @socketio.on("click", namespace="/test")
 def test_click(msg):
-	print(msg)
 
 	cura = battle["a"]
 	curb = battle["b"]
@@ -88,7 +106,6 @@ def test_click(msg):
 	elif msg["data"] == 1:
 		ratings[curb], ratings[cura] = rate_1vs1(oldb, olda)
 
-	print(oldamu, olda.mu, type(oldamu))
 	diffa = ratings[cura].mu-oldamu
 	diffb = ratings[curb].mu-oldbmu
 
@@ -100,14 +117,11 @@ def test_click(msg):
 	diffranka = newranka-oldranka
 	diffrankb = newrankb-oldrankb
 
-	print(diffranka, diffrankb)
-
 	sendratings()
 
 	senddiffs(diffa, diffranka, diffb, diffrankb)
 
 def addplus(v):
-	print(v)
 	v = str(v)
 	v = "+" + v if not v.startswith("-") else v
 	return v
@@ -127,7 +141,7 @@ def sendratings():
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
-	# need visibility of the global thread object
+	# Need visibility of the global thread object
 	global thread
 	print('Client connected')
 
