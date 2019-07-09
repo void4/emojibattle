@@ -118,7 +118,7 @@ def test_click(msg):
 
 	sendratings()
 
-	senddiffs(diffa, diffranka, diffb, diffrankb, newranka, newrankb)
+	senddiffs(diffa, diffranka, diffb, diffrankb)
 
 def f2s(v):
 	return "%i" % round(v*40)
@@ -131,16 +131,16 @@ def addplus(v, trim=True):
 	v = "+" + v if not v.startswith("-") else v
 	return v
 
-def senddiffs(da,dra,db,drb,nra,nrb):
+def senddiffs(da,dra,db,drb):
 	da = addplus(da)
 	db = addplus(db)
 	dra = addplus(dra, False)
 	drb = addplus(drb, False)
 
-	socketio.emit('diffs', [da, db, dra, drb, nra, nrb], namespace='/test', broadcast=True)
+	socketio.emit('diffs', [da, db, dra, drb], namespace='/test', broadcast=True)
 
 def sendratings():
-	socketio.emit('newratings', [f2s(ratings[battle["a"]].mu), f2s(ratings[battle["b"]].mu)], namespace='/test', broadcast=True)
+	socketio.emit('newratings', [f2s(ratings[battle["a"]].mu), f2s(ratings[battle["b"]].mu), *getranks()], namespace='/test', broadcast=True)
 
 
 @socketio.on('connect', namespace='/test')
