@@ -82,6 +82,18 @@ span.clickedNumber {
 
 <script>
 
+function plusOne(event) {
+    var span = document.createElement('span')
+    span.classList.add("clickedNumber")
+    span.innerHTML = "+1";
+    span.style.left = event.originalEvent.clientX
+    span.style.top = event.originalEvent.clientY
+    document.body.appendChild(span)
+    setTimeout(function(){
+      $(span).remove();
+  }, 2000);
+}
+
 $(document).ready(function(){
     var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
     socket.on('newnumber', function(msg) {
@@ -105,15 +117,7 @@ $(document).ready(function(){
     // TODO also on mobile tap, vclick?
     $('#left').on("click tap", function(event) {
 
-        var span = document.createElement('span')
-        span.classList.add("clickedNumber")
-        span.innerHTML = "+1";
-        span.style.left = event.originalEvent.clientX
-        span.style.top = event.originalEvent.clientY
-        document.body.appendChild(span)
-        setTimeout(function(){
-          $(span).remove();
-      }, 2000);
+        plusOne(event)
 
         // Add highlightAns class
           $("#left").addClass("highlightAns")
@@ -128,6 +132,9 @@ $(document).ready(function(){
         return false;
     });
     $('#right').on("click tap", function(event) {
+
+        plusOne(event)
+
         socket.emit('click', {data: 1});
         return false;
     });
