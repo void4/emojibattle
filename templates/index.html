@@ -47,6 +47,7 @@ span.clickedNumber {
     -ms-user-select: none;      /* IE 10+ */
     user-select: none;          /* Likely future */
   position: absolute;
+  pointer-events: none;
   opacity:0;
   /* the standard nobody seems to use */
   animation: animationFrames ease-in 1s; /* animation is 0ne second easing in (getting faster)*/
@@ -115,7 +116,7 @@ $(document).ready(function(){
     })
 
     // TODO also on mobile tap, vclick?
-    $('#left').on("click tap", function(event) {
+    $('#left').on("mousedown tap", function(event) {
 
         plusOne(event)
 
@@ -131,7 +132,7 @@ $(document).ready(function(){
         socket.emit('click', {data: 0});
         return false;
     });
-    $('#right').on("click tap", function(event) {
+    $('#right').on("mousedown tap", function(event) {
 
         plusOne(event)
 
