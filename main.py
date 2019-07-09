@@ -17,6 +17,15 @@ socketio = SocketIO(app, async_mode="threading")
 thread = Thread()
 thread_stop_event = Event()
 
+#Grabbed from
+#https://unicode.org/emoji/charts-12.0/full-emoji-list.html
+#with
+#https://stackoverflow.com/questions/31912136/each-is-not-a-function
+emojis = open("emojis.txt", encoding="utf8", errors="ignore").read()
+def choose():
+	#return choice(ascii_uppercase)
+	return choice(emojis)
+
 class RandomThread(Thread):
 	def __init__(self):
 		self.delay = 10
@@ -26,10 +35,10 @@ class RandomThread(Thread):
 		global battle
 		print("Making random numbers")
 		while not thread_stop_event.isSet():
-			a = choice(ascii_uppercase)
+			a = choose()
 			b = a
 			while b == a:
-				b = choice(ascii_uppercase)
+				b = choose()
 			print(a,"vs",b)
 			battle = {'a': a, 'b':b}
 			sendbattle()

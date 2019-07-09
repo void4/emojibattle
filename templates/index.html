@@ -2,11 +2,11 @@
 
 <style>
 #left {
-    background-color: blue;
+    background-color: #ddddff;
 }
 
 #right {
-    background-color: red;
+    background-color: #ffdddd;
 }
 
 #pond {
@@ -23,6 +23,16 @@
     text-align: center;
     margin: 2%;
     font-size: 400%;
+
+      -webkit-user-select: none; /* Chrome all / Safari all */
+      -moz-user-select: none;   /* Firefox all */
+      -ms-user-select: none;  /* IE 10+ */
+       user-select: none;  /* Likely future */
+}
+
+.highlightAns
+{
+ background-color: orange;
 }
 
 </style>
@@ -63,6 +73,16 @@ $(document).ready(function(){
     })
 
     $('#left').click(function(event) {
+
+        // Add highlightAns class
+          $("#left").addClass("highlightAns")
+
+       // Remove that class after 2 seconds
+         setTimeout(function(){
+              $("#left").removeClass("highlightAns")//.fadeOut("slow");
+         },2000);
+
+
         socket.emit('click', {data: 0});
         return false;
     });
