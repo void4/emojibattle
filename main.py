@@ -31,14 +31,17 @@ thread_stop_event = Event()
 #with
 #https://stackoverflow.com/questions/31912136/each-is-not-a-function
 emojis = open("emojis.txt", encoding="utf8", errors="ignore").read()
+for fail in "🥱🤎🤍🤏🦾🦿🦻🧏🧏‍♂️🧏‍♀️🧍🧍‍♂️🧍‍♀️🧎🧎‍♂️🧎‍♀️🦧🦽🦼🪔🟠🟡🟢🟣🟤🟥🟧🟨🟩🟦🟪🟫":
+	emojis = emojis.replace(fail,"")
+
 def choose():
-	return choice("ABC")
+	#return choice("ABC")
 	#return choice(ascii_uppercase)
-	#return choice(emojis)
+	return choice(emojis)
 
 class RandomThread(Thread):
 	def __init__(self):
-		self.delay = 10
+		self.delay = 5
 		super(RandomThread, self).__init__()
 
 	def pingClients(self):

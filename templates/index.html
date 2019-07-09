@@ -30,12 +30,40 @@
        user-select: none;  /* Likely future */
 }
 
-.highlightAns
-{
+.highlightAns {
  background-color: orange;
 }
 
+.header {
+    text-align: center;
+    font-size: 200%;
+}
+
+
+
+span.clickedNumber {
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */
+  position: absolute;
+  opacity:0;
+  /* the standard nobody seems to use */
+  animation: animationFrames ease-in 1s; /* animation is 0ne second easing in (getting faster)*/
+  animation-iteration-count: 1;   /* animation happens once */
+}
+
+
+
+/* the key frames one style for each browser  and the standard one for some one else*/
+@keyframes animationFrames{  /* the standard nobody seems to use */
+  0% { transform: translateY(0px); opacity:1;}  /* start 20 pixels down  and vissable */
+  100% { transform: translateY(-40px); opacity:0;} /* move up to 217 pixels while fading out */
+}
+
 </style>
+
+<div class="header">EmojiBattle<br>vs.</div>
 
 <div id="pond">
     <div class="cell" id="left"></div>
@@ -74,8 +102,18 @@ $(document).ready(function(){
         $("#rightinfo").text(msg[3] + " " + msg[1])
     })
 
-    // TODO also on mobile tap
+    // TODO also on mobile tap, vclick?
     $('#left').on("click tap", function(event) {
+
+        var span = document.createElement('span')
+        span.classList.add("clickedNumber")
+        span.innerHTML = "+1";
+        span.style.left = event.originalEvent.clientX
+        span.style.top = event.originalEvent.clientY
+        document.body.appendChild(span)
+        setTimeout(function(){
+          $(span).remove();
+      }, 2000);
 
         // Add highlightAns class
           $("#left").addClass("highlightAns")
